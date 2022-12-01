@@ -161,8 +161,6 @@ public class SimpleGomokuEngine {
     //棋局状态 0 落子 1 声明打点数量 2 交换 3 打点 4选择打点 5结束
     private int status;
 
-    private int winPlayer;
-
     /**
      * 五子连珠
      */
@@ -188,12 +186,13 @@ public class SimpleGomokuEngine {
     private int dotNumber;
 
     private int[] dots;
-    public SimpleGomokuEngine(int rule){
+    public GoBangGame(int rule){
         this.board = new Board(15);
         this.rule = rule;
         this.status = MOVE;
         this.turn = 0;
         this.nextColor = BLACK;
+        this.history=new ArrayList<>();
     }
 
     public boolean pass(){
@@ -549,6 +548,7 @@ public class SimpleGomokuEngine {
         if(color==BLACK || color==WHITE){
             //
             int d2 = Direction.reverse(d);
+
             int[] res1 = {0,0,0,0,0};
             res1 = search(color, x, y, Direction.of(d), res1);
             int[] res2 = {0,0,0,0,0};
@@ -558,20 +558,10 @@ public class SimpleGomokuEngine {
             int e2 = res2[1];
             int empty = e1 + e2;//空格数目
             int close = res1[2] + res2[2];//受阻方向数目
-            if(empty==0){
-                shapes.add(Shape.ofLength(count,close));
-                return shapes;
-            }
-            if(e1*e2 ==0){
-                if(count<5) {
-                    shapes.add(Shape.ofLength(count,close));
-                    return shapes;
-                }
-                int l0 = e1==0? res1[0]:res2[0];
-                int l1 = e1==0? res2[3]:res1[3];
-                int l = l0 + l1;
-                if(l>=5){
-                    shapes.add(Shape.ofLength(count,close));
+            if(empty<2){
+                int len = count - empty;
+                if(len<5){
+                    shapes.add(Shape.ofLength(len,close));
                     return shapes;
                 }
             }
@@ -610,6 +600,15 @@ public class SimpleGomokuEngine {
     }
 
 
+    /**
+     *
+     * @param color
+     * @param fromX
+     * @param fromY
+     * @param d
+     * @param res 0子数1空格数2受阻数3不算空格的数目
+     * @return
+     */
     private int[] search(int color,int fromX,int fromY,Direction d,int[] res){
         if(color==EMPTY) return res; //空白暂无搜索必要
         int toX = fromX+d.delta[0];
