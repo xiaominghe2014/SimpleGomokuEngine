@@ -186,7 +186,7 @@ public class SimpleGomokuEngine {
     private int dotNumber;
 
     private int[] dots;
-    public GoBangGame(int rule){
+    public SimpleGomokuEngine(int rule){
         this.board = new Board(15);
         this.rule = rule;
         this.status = MOVE;
